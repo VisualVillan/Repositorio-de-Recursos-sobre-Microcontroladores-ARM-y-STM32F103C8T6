@@ -1,8 +1,9 @@
 # Repositorio-de-Recursos-sobre-Microcontroladores-ARM-y-STM32F103C8T6
 Este repositorio contiene diapositivas y apuntes detallados sobre la arquitectura de los microcontroladores ARM, así como una guía práctica para la configuración de registros del microcontrolador STM32F103C8T6.
-## Contenido
 ## Diapositivas sobre Arquitectura ARM
-- Introducción a ARM: Historia y evolución de la arquitectura ARM.
+- Introducción a ARM.
+- Linux y procesos de compilacion.
+- Manejo de versiones git.
 - Características Principales: Descripción de las principales características de los microcontroladores ARM, incluyendo eficiencia energética, rendimiento y escalabilidad.
 - Modularidad y Flexibilidad: Cómo la arquitectura ARM permite la personalización y adaptación a diversas aplicaciones.
 ## Apuntes sobre STM32F103C8T6
