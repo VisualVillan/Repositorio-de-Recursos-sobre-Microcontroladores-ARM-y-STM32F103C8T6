@@ -1,0 +1,592 @@
+Apuntes acerca de comandos Linux, manejo de versiones en git y manejo de registros del STM32 Blue Pill
+_________
+SEMANA 1:
+
+ARM bajo consumo energetico, C es el lenguaje madre.
+GITHUB sirve para guardar ediciones del codigo
+
+Moverse en power shell cmd:
+
+-ls: mostrar archivos dentro de la ubicacion en la que me encuentro
+-cd Documents: ir a ubicacion, documents es un ejemplo
+-cd ..:retroceder
+-mkdir cursoARM: "make director", crear directorio/fichero/archivo
+-systeminfo: Llamando a un programa, un archivo ejecutable en system 32 :o cuando abrimos systeminfo aparece codigo maquina :OOOOO
+-ipconfig: esta en system32 y tambien es un programa escrito en lenguaje maquina
+-echo "Kalun": lee el parametro de entrada y lo escribe al compilarlo.
+-pwd: conocer en la ubicacion en la que nos encontramos
+
+git tambien es una herramienta de nuestro sistema operativo 
+
+LINUX:
+-En linux todos los archivos ejecutables estan en bin, en windows esta en system32
+-compilador para ARM: ARM none eabi gcc
+-gcc es un programa desarrollado para Linux, una herramienta que nos sirve para trabajarlo en windows es el mingw.
+
+UBUNTU: 
+-touch ejemplo.py : para crear archivos
+-nano ejemplo.py : abrir el archivo
+-sudo apt-get update: actualiza todos los repositorios del sistema operativo
+- ls: ver que hay en esa ubicacion
+- pwd: saber en la carpeta en la que estoy
+- cd "carpeta": ir a esa caperta
+- mkdir: crear carpeta
+- touch: crear archivo
+- nano: es entrar a la interface del editor de codigo
+- rm "nombre del archivo": eliminar el archivo
+Compilacion y correr codigo:
+- gcc -o(output) hola(archivo de salida en ejecutable) hola.c(archivo de entrada)
+- ./hola
+
+sudo apt search arm-none: buscar comandos con arm-none
+sudo apt-get install gcc-arm-none-eabi: instalar el compilador de arm
+arm-none-eabi-gcc --version: ver la version de mi compilador
+
+- Diferencia entre lenguaje compilado (assembler, C) y lenguaje interpretado (python)
+
+Etapas de compilacion:
+-Pre-processing
+	*gcc -E hola.c -o hola.i: Nos da el archivo pre-procesado (inclusion de todas las librerias en include y al final aparece nuestro main code).
+(realizar el paso de pre-procesado)(archivo en c)(output)(archivo codigo fuente)
+
+-Compilacion: Generar el codigo ensamblador
+	*gcc -S hola.i -o hola.s: Nos da el ensamblador: a diferencia del anterior le debemos otorgar el archivo .i para que genere el codigo emsamblador en un .s 
+
+-Ensamblaje
+	*gcc -c hola.s -o hola.o (archivo en codigo fuente): compilar codigo fuente pero no enlazarlo
+	YA ESTA EN COGIO MAQUINA
+
+-Enlazamiento
+	*gcc hola.o -o hola
+
+Comandos en C Linux:
+-control k: cortar
+-control U: control z
+_________
+SEMANA 2:
+Clase 2: 
+*Variables en C
+	char - 1byte
+	short - 2byte
+	int - 4byte
+	long - 8byte
+	float - 4byte
+	double -8byte
+Libreria stdint.
+uint8_t - 1Byte  : definimos explicitamente una variable de 8 bits
+ejemplo de caracter en memoria SRAM
+
+8 bytes
+   0110 0001 0000 0000
+   0000 0000 0100 1001 -> todo este bloque le pertence a 'a'
+   0000 0000 0000 0000
+   0000 0000 0000 0000
+char car = 'a'. -> 97(valor decimal) -> 0110 0001 (valor binario)
+int a = 73; -> 73 -> 0100 1001  
+
+anteponiendo el 0b podemos escribir numeros binarios en C
+
+*Estructuras de control:
+if, else, else if, while, for, do-while 
+ejemplo do-while
+a = 10;
+do{
+	printf("hola");
+	a++
+}while(a < 20);
+printf("Termino el bucle");
+
+----------------------
+Llamar funciones de otros archivos:
+
+-Primero creamos nuestro main code donde llamaremos funciones de otros archivos, luego creamos la function en otro archivo, luego llamamos el otro archivo en nuestro main code "#extern void funcion1();" luego ensamblamos pero no enlazamos ambos codigos y finalmente enlazamos ambos codigos ensamblados en un ejecutable.
+
+gcc -c main.c -o main.o
+gcc -c funcion1.c -o funcion1.o
+
+gcc funcion1.o main.o -o funcionfinal
+
+Otra manera de hacerlo:
+
+-Con la estructura conocida como makefile (archivo de cabecera)
+
+1.
+#ifndef FUNCIONA_H
+#define FUNCIONA_H
+
+void funcionA();
+
+#endif;
+
+Esta es la estructura de la cabecera, colocamos aca la function que creamos en un archivo .c
+2. pasamos este archivo de cabecera a nuestro main code (#include "ejemplo.h";) y (ejemplo();)
+3. creamos un makefile
+
+-----------------------
+- Arreglos: Deben tener un determinado tipo, no de diferentes tipos.
+- Numeros Aleatorios: #include time.h y stdlib.h, srand(time(0)) y rand(); el modulo es para delimitar el numero de los aleatorios rand() % 30, numeros hasta el 30
+- Punteros: Permiten almancenar direcciones de memoria permitiendo modificar los parametros por referencia en el llamado de funciones. 
+* apunta a..
+& direccion de..
+	ejemplo de punteros: funcion para intercambiar numeros
+
+#include <stdio.h>
+
+void intercambiar_numeros(int* num1, int* num2);
+
+void main(){
+    int num1 = 270;
+    int num2 = 300;
+
+    printf("El valor de num1 es: %i \n", num1);
+    printf("El valor de num2 es: %i \n", num2);
+
+    intercambiar_numeros(&num1, &num2);
+
+    printf("El valor de num1 es: %i \n", num1);
+    printf("El valor de num2 es: %i \n", num2);
+}
+
+void intercambiar_numeros(int* x, int* y){
+    int temporal = *x;
+    *x = *y;
+    *y = temporal;
+}
+
+_________
+SEMANA 3:
+
+Clase 3:
+- Estructuras: programacion orientada a objetos?
+1. Crear estructura: struct "nombre de la clase" asignamos variables con su longitud de bits
+2. En el int main creamos el objeto (struct "nombre de la clase" "nombre del objeto")
+2. Enlazar con puntero: Para enlazar con un puntero debemos crear una variable que apunte a las direcciones de la clase a traves del objeto, struct "nombre de la clase*" "nombre del puntero", luego "nombre del puntero" = &"nombre del objeto".
+3. Modificar datos en la estructura con su direccion de memoria.
+
+Tambien se puede hacer a traves de persona.edad por ejemplo pero lo realizamos con punteros porque es mas complejo y se usa mas en la parte de programacion de microcontroladores.
+
+El upset es 0x0 por lo que si le sumo esto a la direccion base es la misma direccion base, luego se suma 0x1 y asi.
+
+Si en una estructura seleccionamos una variable de 16 bits y las demas de 8bits entonces la separacion en memoria seran de 16 bits
+
+En stm32 hacemos una estructura con una direccion base.
+
+- Sistemas de control de versiones:
+El sistema mas usado es GIT, y en la nube es GITHUB. Todo el codigo que se desarrolla se encuentra en repositorios.
+
+Comado git clone en PowerShell
+
+Crear una carpeta de git:
+mkdir repoEjemplo
+cd repoEjemplo/
+git init .   (esto es para usar los comandos de git en esta carpeta)
+
+git status (verificar los cambios en el repositorio)
+git add .  (actualizar los cambios)
+git commit -m "Primera Version"   (Se ha creado la primera version) 
+git log (ver todo el historial de cambios)
+git checkout "hashID" (para ir a la version que quieras)
+git switch - (volver a la version mas actual)
+git reset --hard HEAD~1 (elimina el commit anterior)
+
+- Concepto de ramas:
+Se pueden crear ramas para editar Código (Ramas en un repositorio: Master, Develop, Feature, Feature).
+Master: Es la rama que va a ir a nuestro dispositivo, la rama principal (main).
+Develop: Ramas de desarrollo que seran "merged" con la rama master.
+
+git branch (ver que ramas hay)
+git checkout -b burbuja (Moverse a otra rama)(-b significa crear una rama antes de cambiar a ella)
+
+git merge "burbuja" esto hace que lo trabajado en la rama develop (burbuja), venga a la rama de produccion o master(main).
+
+git clean -f -d (borrar los archivos no added)
+ejecutables, nunca en los repositorios
+
+git remote add origin https://github.com/VisualVillan/Ejemplo-ARM.git /agregar direccion como enlace remoto para mi codigo
+
+git remote -v
+git push origin "nombre de la rama que queremos subir"
+te va a pedir credenciales, en contrasena pones el token generado.
+
+para crear un directorio en repositorio de git tienes que poner en new fila "nombre / archivo.md"
+
+git clone https://github.com/VisualVillan/F1240499_Examen_1.git
+cd F1240499_Examen_1
+mkdir nueva_carpeta
+mv pregunta2* nueva_carpeta/
+mv pregunta2 nueva_carpeta/
+
+git pull origin main --allow-unrelated-histories
+
+--------
+Clase 4:
+
+Intrucciones CISCL:
+1. Codigo de operacion
+2. Operandos de fuente
+
+
+para descargar el compilador de ARM en windows: https://developer.arm.com/downloads/-/gnu-rm
+
+comandos para descargar y verificar arm-none-eabu-gcc:
+arm-none-eabi-gcc --version
+sudo apt update
+sudo apt install gcc-arm-none-eabi
+
+compilar en arm: arm-none-eabi-gcc -S e1.c -o e1.s
+
+Diferencias entre los procesadores: 
+Cortex-A: Sistemas operativos. Raspberry por ejemplo tiene un ARM cortex-A, mientras mas hz mas rapido
+Cortex-R: Uso mas de riesgo, automoviles, brazos roboticos industriales, etc.
+Cortex-M :(Curso, sistemas embebidos de uso general, mas baratos y mas sencillos)
+
+Arquitectura ARM
+
+uint8_t : espacio de memoria tiene 8 bits, 0b00000000;
+
+Programacion del ARM:
+Basicamente realizar operaciones para establecer el espacio de memoria que queramos partiendo de una base (upset)
+
+| : esto significa suma (para sumar los bits de registros)
+& : AND
+~(): el negado
+(1<<6) : desplazamiento 1 <- 6 bits a la derecha 1000000
+
+Ejemplo de codigo en arduino
+-----------------------------------
+#include <stdio.h>
+#include <stdint.h>
+
+int main(){
+    volatile uint8_t* confB = (volatile uint8_t*) 0x24; //direccion del registro 
+    volatile uint8_t* salidaB = (volatile uint8_t*) 0x25 //salida del portb
+
+    *confB |= (1<<5);
+    *salidaB &= ~(1<<5);
+
+    while(1){
+        *salidaB |= (1<<5);
+        __delay_ms(1000);
+        *salidaB &= ~(1<<5);
+        __delay_ms(1000);
+    }
+
+    return 0;
+}
+-----------------------------------------
+Programacion en STM32:
+
+- GPIIO registers pag. 171: 
+- Direcciones Base pag. 51:
+- RCC Register map 121
+
+Parametros  configurar:
+- La direccion base del puerto (en este caso el PC13): 0x4001 1000
+- El offset de mi instruccion: 0x04
+- El ODR (Output data register)(IDR seria si fuera imput), direccion de offset: 0x0C
+
+Reloj. pag 112 y 146 para registro.
+- RCC_APB2ENR El registro RCC_APB2ENR es esencial para habilitar y gestionar los relojes de los periféricos conectados al bus APB2 (base): 0x4002 1000
+- RCC APB2 Offset: 0x18
+
+en el int main():
+
+BASE GPIO_PORTC = 0x4001 1000
+GPIOC_CRH = 0x4001 1004 // configuracion para el puerto C
+GPIOC_ODR = 0x4001 100C // Configuracion para que sea salida
+RCC_APB2ENR = 0x4002 1018
+
+PortC13: &0xFF0FFFFF
+PortC13: |0x00200000
+PortC13 ODR: |0x00002000
+Clock en C: |0x00001000 o (1<<4)
+
+_______________________
+CLASE 5:
+Compilacion ARM: 
+
+Colocar los archivos de (Linkeo y Startup) y en nuestro proyecto
+
+- Generacion del archivo .elf
+	arm-none-eabi-gcc
+	-mcpu=cortex-m3
+	-mthumb
+	--specs=nosys.specs
+	-T
+	stm32f103c8tx_flash.ld
+	startup_stm32f103c8tx.s
+	parpadeo.c
+	parpadeo.elf
+
+arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb --specs=nosys.specs -T stm32f103c8tx_flash.ld startup_stm32f103c8tx.s parpadeo.c -o parpadeo.elf
+
+- Generacion del archivo .bin
+	arm-none-eabi-objcopy
+	-O binary
+ 	parpadeo.elf
+	parpadeo.bin
+
+arm-none-eabi-objcopy -O binary c6.elf c6.bin
+
+- Carga del archivo
+	st-flash
+	write
+	parpadeo.bin
+	0x08000000
+
+Se descarga el archivo bin y se copia a nuestra carpeta C5-FILES
+En consola cmd:st-info --probe : DATOS DE LOS MICROS CONECTADOS 
+
+Archivos de configuracion
+
+st-flash write parpadeo.bin 0x08000000
+st-flash write c6.bin 0x08000000
+st-flash erase
+-----------------
+Con boton en pull-down:
+input = A10
+output = PC15
+Para hacer un input en el crl o crh se configura como flotante y como input, luego en el idr se ajusta para que solo evalue el pin que queramos, para despues esa variable manipularla en condiciones.
+-----------------
+Se puede hacer estructuras para manejar registros:
+
+1. Se define una estructura typedef struct{"se completan con variables de 32 bits, para que ese sea el distanciamiento entre registros, importante poner los registros en orden" }GPIO_TypeDef; por ejemplo
+2. Definimos las bases, por ejemplo #define GPIOC_BASE 0x4001100, a partir de esta base es que los registros empezaran a saltar de 32 en 32 bits.
+3. Creamos la variable puntero a la esctructura #define GPIOC ((GPIO_TypeDef*)GPIOC_BASE)
+4. A donde apuntemos en la estructura con nuestro puntero los registros ya se encuentran con el offset, GPIOC -> ODR &= ....
+_____________________
+PARCIAL
+@afs2497
+Crear repositorio con nombre: F1240499_Examen_1
+Pregunta 1:
+VILLANUEVA TORRES, LUIS
+Acceso remoto: https://github.com/VisualVillan/F1240499_Examen_1.git
+------------
+Pregunta 2:
+-Inicializa un arreglo tipo int
+-Que se llene de forma aleatoria con hasta 15 elementos
+-Los divisores de los numeros ingresados tienen que ser menores que si mismos (no puede ser el mismo numero)
+-Si la suma de sus divisores el menor al numero entonces en deficiente, si es igual, es perfecto y si es mayor es abundante
+
+Codigo:
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
+void analiza_num(int a){
+    //printf("El numero es: %i \n", a);
+    int suma = 0;
+    for(int i = 1; i < a; i++){        
+        if(a % i == 0){
+            int divisor = i; 
+            suma += divisor;
+            //printf("%i es divisor\n", divisor);
+        }else{}   
+    }
+    //printf("%i es la suma de los divisores\n", suma);
+    if(suma < a){
+        printf("%i - Deficiente\n", a);
+    }else if(suma == a){
+        printf("%i - Perfecto\n", a);
+    }else{printf("%i - Abundante\n", a);}
+    
+}
+
+
+int main(){
+
+    srand(time(0));
+    int n = 15;
+    int array[n];
+    
+    for(int i = 0; i < n; i++){
+        array[i] = rand()%100;     
+        analiza_num(array[i]); 
+    }
+    return 0;
+    
+}
+------------
+Pregunta 3:
+
+Puerto 0 (Base): 0x50000000
+Offset para salida: 0x504
+
+#include <stdio.h>
+
+int main(){
+    // BASE GPIO_PORT0 = 0x50000000
+    // OFFSET OUT = 0x504 
+    // OFFSET OUTSET = 0x508 
+    // OFFSET OUTCLR = 0x50C 
+    // OFFSET IN = 0x510
+    // OFFSET DIR = 0x514
+    // OFFSET DIRSET = 0x518
+    // OFFSET DIRCLR = 0x51C
+
+    volatile uint32_t* OUT = (uint32_t *) 0x50000504;
+    volatile uint32_t* OUTSET = (uint32_t *) 0x50000508;
+    volatile uint32_t* OUTCLR = (uint32_t *) 0x5000050C;
+    volatile uint32_t* IN = (uint32_t *) 0x50000510;
+    volatile uint32_t* DIR = (uint32_t *) 0x50000514;
+    volatile uint32_t* DIRSET = (uint32_t *) 0x50000518;
+    volatile uint32_t* DIRCLR = (uint32_t *) 0x5000051C;
+
+}
+
+------------
+Pregunta 4:
+ 
+0xFF0FFFFF; 0 todo el registro
+| 0x0020000; pin 13
+| (1<<14); pin 14
+| (1<<15); pin 15
+
+
+______________________
+CLASE 6:
+Perisfericos UART y sistic?
+
+RS485 comunicacion diferencial hasta 1200 metros maso
+S232 protocolo RX TX GND
+USB comunicacion diferencial, debe tener etapa intermedia para traducirlas a comunicaciones seriales RX (recibe) y TX (transmite)
+
+En el proyecto anadimos los incFiles y C6-FILES (start up, linkeo, gpio, etc)
+
+RCC: 
+- AFIO nos permite activar las senales alternativas
+- Puertos A para la comunicacion serial 
+- Puerto USART para la comunicacion serial
+
+27.6.3 Baud Rate Register (USART_BRR) PAG 820:
+# 8MHz / (16 * 9600) = 52,083..
+PARTE ENTERA -> 52 -> 0x34 -> (0x34 << 4)
+PARTE DECIMAL -> 0.083 -> 0.083 x 16 -> 1,328 -> 1
+
+27.6.4 Control register 1 (USART_CR1):
+- USART enable
+- Transmitter enable
+- Receiver enable
+
+//Para testear si el uart funciona 
+27.6.1 Status register (USART_SR): 
+- bit 7, transmit data register empty
+
+
+
+--------------
+SysTick Timer: Temporizar. para reemplazar el delay con el bucle for, mayor exactitud en la senal
+Cuenta con 3 registros: 
+- Control y estado (countflag, bit 16) 
+- Registro de valor de recarga
+- Registro de valor actual
+No es un perisferico del microcontrolador stm32 porque es un registro de arquitectura cortex M3 osea del procesador.
+
+1. Inicializar el perisferico
+2. Colocarle un valor de temporizacion
+3. En el registro de control  y estado mandar TICKINT a 0 para deshabilitar las interrupciones y activar el enable, 
+
+--------------
+2:48 ULTRASONIDO
+_____________________
+CLASE 7: 
+Librerias 
+Tiene que haber una cabecera.h y maincode.c
+
+Dentro de la cabecera el #include "../incFiles" por ejemplo asi se referencia otro archivo en el proyecto
+1. Crear un directorio para almacenar el .c y .h en tu proyecto.
+2. En el .h vas a incluir las librerias que necesitan las funciones y las funciones invocadas.
+3. En el .c vas a incluir la libreria .h y las funciones con el codigo de funcionamiento.
+4. En tu main code invocas el .c ejemplo: #include "servobrazo/servobrazo.h".
+5. Puedes proceder a invocar funciones en tu main code.
+6. Para compilarlo se agrega el punto de la libreria que creaste. Ejemplo:
+arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb --specs=nosys.specs -T stm32f103c8tx_flash.ld startup_stm32f103c8tx.s f.c ./servobrazo/servobrazo.c ./uartbrazo/uartbrazo.c-o f.elf
+arm-none-eabi-objcopy -O binary f.elf f.bin
+st-flash write f.bin 0x08000000
+
+
+----------------------
+ADC:
+Este perisferico nos permite digitalizar senales que pueden ser guardados en un registro.
+La resolucion ADC se refiere el limite analogico digital, si tiene 10-bits ADC 2^10 -1, 1023
+El stm32 tiene 12 bits 2^12 - 1 = 4095
+Tenemos 3 modulos ADC
+1. RCC. Habilitamos el bit numero 9 para habilitar el ADC1  (CAMBIA DEPENDIENDO)
+2. Configuramos el puerto en entrada analogica y input mode osea todo 0 (CAMBIA DEPENDIENDO)
+3. ADC_CR2. ADON desactivado, esto es para encender y apagar.
+//Estos registros son para realizar multiples conversiones,  SQR2 configura canales del 7 a 12, SQR3 configura del 1 a 6
+4. ADC_SQR1. Mandar a 0 los 24 primeros bits, no los bits reservados.
+5. ADC_SQR2. Mandar a 0 los 28 primeros bits, no los bits reservados. El bit 29 y 28 quedan como estan
+6. ADC_SQR3. Mandar a 0 los 28 primeros bits, no los bits reservados. El bit 29 y 28 quedan como estan, configuras SQ1
+   (CAMBIA DEPENIENDO)
+7. ADC_CR1. El modo del ADC hay varios, el modo sencillo, todos los bits a cero menos los reservados
+8. ADC_SMPRx. Duracion de la conversion, configurar el SMPR2, seleccionamos el numero de puerto SMPx y le damos el valor maximo 111. (CAMBIA DEPENDIENDO)
+
+FUNCION DE LECTURA (16 BITS)
+9. ADC_CR2. activamos en el bit 0 y al leer el ADC SWSTART cuando activamos la conversion va a iniciar.
+10. ADC_SR EOC nos indica cuando finaliza la conversion (en alta)(cuando haya terminado de colocar el valor en el registro DR).
+11. ADC_DR
+RETORNAMOS EL VALOR ADC
+
+______________________
+CLASE 8: 
+- Temporizadores (TODOS LOS REGISTOS):
+El stm32f103 tiene una resolucion de 16 bits para el contador. La operacion el contador es sincrona.
+1. Al modificar el pre escalador en el temporizador, al ser una instruccion de registro global, sera la misma para todos los canales.
+2. Lo unico que varia en cada canal es el registro de comparacion.
+3. El registro del temporizador es el RCC, habilitamos el clock en B y habilitamos el timer3 en este caso.
+4. (TIM3) Registro PSC. es el pre escaler, la formula es la siguiente: F_salida = F_clk (8MHZ) / pre escaler+1
+5. (TIM3) ARR (MULTIPLICA AL PERIODO). es el contador va del valor que le demos hasta 0, al ser de 16 bits, el valor maximo es 2^16 - 1
+definimos el 100 porciento del duty ciclo osea su periodo.
+6. (TIM3) CCR1,2,3,4: Depende del canal respectivo por ejemplo para el pin PB1 es el C4
+TIM3 -> CCR4 = 12500; //duty cicle 25% de el ARR que es el numero del periodo.
+7. (TIM3)CCMR2,1 depende de tu canal: el compare clear enable desactivado, para el C4 es el CCMR2, habilitamos la comparacion, configurar como salida, Desactivamos Output compare 4 fast enable, para el PWM mode en el OCxM debemos poner 110.
+8. CCER registro de captura y comparacion: 
+9. Habilitamos el Timer3 CR1: Habilitamos el bit 7ARPE (Cambiar valores de la cuenta en tiempo real) y el bit 0 EN.
+
+Como el pre escaler es 0 entonces la frecuencia es 8MHz 1/8M = tiempo, osea 125n x ARR osea 50000 tneemos 6.25 ms de T
+
+- (0xFF << 8) a partir del bit 8 para adelante se modifican los espacios de memoria.
+1.57
+
+- Fuentes de reloj.
+Para generar las fuentes de reloj necesitamos circuitos pre escaladores para poder dividir la frecuencia de ingreso al modulo para obtener el requerimiento deseado, LA FUENTE ES DE 8MHZ
+
+- Onda PWM (Modulacion por ancho de pulso)
+Es una tecnica para controlar la cantidad de energia entregada a una carga sin desperdiciar mucha energia en forma de calor.
+Consiste en una senal digital que alterna entre HIGH y LOW  a una frecuencia fija.
+La cantidad de tiempo que la senal se mantiene en HIGH se llama duty cycle, se expresa como un porcentaje y determina la cantidad de energia promedio entregada a la carga.
+
+- Control del SG90 Tower Pro, se controla con una senal RC:
+El periodo es de 50Hz osea 1/50=20 ms y un ciclo de trabajo entre 5% y 10% (1 a 2 ms)
+
+- Control del SG90 rotacion continua, 1 ms una direccion, 1.5 ms neutral y 2 ms direccion opuesta
+
+arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb --specs=nosys.specs -T stm32f103c8tx_flash.ld startup_stm32f103c8tx.s f.c ./servobrazo/servobrazo.c -o f.elf
+arm-none-eabi-objcopy -O binary f.elf f.bin
+st-flash write f.bin 0x08000000
+
+50HZ = 8mhz/pss+1
+
+______________________
+EXAMEN FINAL:
+a. Desarrollar la librería potbrazo en donde se deben configurar los puertos ADC así como integrar la función leerPuerto, considerar que la función debe ser paramétrica y tener como valor de entrada el puerto de lectura del ADC.
+b. Desarrollar la librería servobrazo en donde se debe configurar el timer correspondiente para poder generar las ondas PWM de 50Hz de frecuencia que requieren los servomotores. Se debe programar una función paramétrica cambiarAngulo que reciba el valor del ADC y establezca el ciclo de trabajo correspondiente. 
+c. Desarrollar la librería uartbrazo en donde se debe configurar el uart correspondiente y los puertos GPIO con función alternativa y se deben declarar las funciones para enviarCaracter, enviarPalabra, leerCaracter y nuevaLinea. Puede declarar funciones nuevas que le ayuden a lograr el objetivo.
+
+
+d.-Inicialmente mostrar un mensaje en el terminal serial: “BIENVENIDOS AL PROGRAMA BRAZO ROBOTICO”
+  -El flujo del programa debe esperar la lectura de un carácter para ejecutar un modo de operación. Tener en cuenta que esta espera del carácter no debe ser bloqueante, se recomienda hacer una selectiva al principio del código que  verifique el bit 5 del registro SR de UART3, si es 0 entonces simplemente seguir con el flujo, caso contrario leer el carácter.
+'a' Se mueven los potenciometros pero no se mueven los servos, esto se puede hacer apagando el registro de lectura del ADC
+'b' Funcionamiento normal
+'g' 
+'h'
+'i'
+
+hacer que funcione el puerto rx tx para las pruebas
+adctimer.c hacer comando de compilacion y probar la condicional
+probar el codigo del examen de una vez
+
+
+
+
