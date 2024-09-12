@@ -11,4 +11,4 @@ Este repositorio contiene diapositivas y apuntes detallados sobre la arquitectur
 - Configuración de Registros: Guía paso a paso para la configuración de registros, incluyendo ejemplos prácticos y explicaciones sobre cada registro relevante.
 - Interrupciones y Periféricos: Cómo manejar interrupciones y configurar periféricos, como temporizadores y GPIO.
 ## Objetivo
-Este material está diseñado para estudiantes, ingenieros y entusiastas que deseen profundizar en la arquitectura de microcontroladores ARM y aprender a configurar y programar el STM32F103C8T6 de manera efectiva.
+Este material está diseñado como refuerzo y consulta para futuros proyectos.
