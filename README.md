@@ -1,5 +1,6 @@
 # Repositorio-de-Recursos-sobre-Microcontroladores-ARM-y-STM32F103C8T6
 Este repositorio contiene diapositivas y apuntes detallados sobre la arquitectura de los microcontroladores ARM, con el objetivo de consultar rápidamente la configuración de registros del microcontrolador STM32F103C8T6.
+El contenido corresponde al curso de Programación de Microcontroladores ARM que dicta la Pontificia Universidad Católica del Perú (PUCP).
 ## Diapositivas sobre Arquitectura ARM
 - Introducción a ARM.
 - Linux y procesos de compilacion.
